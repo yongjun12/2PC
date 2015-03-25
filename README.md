@@ -3,12 +3,11 @@
 The second project in Distributed Computing: Two phases commit.
 
 The first project is implemented in function in global scope, so I have to register all put, get, del functions for xmlrpc interface. 
-Later after referring to some other students' work, I realized that a better way to build the system is through Class. For better organization,
-I implemented the system in Object-oriented programming. 
+Later after referring to some other students' work, I realized that a better way to build the system is through Class. For better organization, I implemented the system in Object-oriented programming. 
 
 Another improvement is how the record is logged. In first project, the activities of both coordinator and replica are logged in SQLite tables.
 This will create unnecessary overhead of database connection and insert/update request. In addition, database has the potentiality to crash,
-which is bound to jeopardize the availability of logging information. Thereofore, in the second project, I use text file to keep track of coordinator/replica status.
+which is bound to jeopardize the availability of logging information. Thereofore, in the second project, I use text file to keep track of coordinator/replica status. This should reduce the extra cost and chance of failure.
 
 ## Installation
 ##### Have to make sure the following tools available in both server and client machines. 
@@ -23,62 +22,63 @@ In this project, fabfile will be run on server machine for simplicity.
 
 ## Environment Setup
 
-1. Run command: python server.py
-2. Now the server is up
-3. vim ClientSetUp.py, change proxy_id to ip of server you just set up  
+1. vim coordinator.py, change relica_add to ip of replica that store the key-value pair
     ```
-      proxy_id = <server_ip>
+      replica_add = <ip of ther replica process>
     ```
-4. Run ServerDbSetup.sh in current work directory
+2. Run coodinator.py in current work directory
   ```
-    chmod a+x ServerDbSetup.sh
-    ./ServerDbSetup.sh
+    python coordinator.py
   ```
-5. vim fabfile.py, set env.host to server ip and all client ip
+3. vim fabfile.py, set env.host to server ip and all replica ip
     ```
-      env.hosts = [<server_ip>, <client1_ip>, ..., <clientN_ip>] 
+      env.hosts = [<server_ip>, <replica1_ip>, ..., <replicaN_ip>] 
     ```
-6. vim fabfile.py, define server/client roles
+4. vim fabfile.py, define server/replica roles
    ```
        env.roledefs.update({
        'server': [<server_ip>],
-       'client': [<client1_ip>, ..., <clientN_ip>]
+       'replica': [<replica1_ip>, ..., <replicaN_ip>]
        }) 
     ```
-7. Run command `fab setup` to put the python files to clients and create tables in sqlite.
-8. Now everything is up and running! Start your exploration!
+5. Run command `fab setup` to put the python files to replicas and create logs.
+6. Now everything is up and running! Start your exploration!
 
 ## Code Structure
 
 ###### The project use built-in library xmlrpclib as an interface for server-client communication. Each machine, both server and multiple clients, has an independent database where key value and process status are logged. SQLite is introduced as the its advantage of being light-weight and easy installation. For better streamlining, fabric command-line tool is also injected in the project, simplifying the execution of python files in distributed machines.
 
-1. Server.py
-   - log: keep track of operation conducted on info table
+1. Coordinator.py
+   - commit: ask all replicas to commit changes
+   - abort: ask all replicas to abort changes
    - get: fetch key value
    - put: update key value
    - delete: delete key 
-   - main: create server and set up port for incoming events, register above functions
+   - recover: Checks log file to see if there are any entries without commit/abort action
+   - main: create coordinator and set up port for incoming events, register the class coordinator.
    
-2. client.py
-   - log: keep track of status on info table
-   - get: fetch key value from distant server, if no value is received, delete(update) key in info table
-   - put: update key value in both server info and client info table
-   - delete: delete key in both server info and client info table
+2. replica.py
+   - decide: to if see there are ongoing request 
+   - get: fetch key value from sqlite3, if no value is received, return null
+   - put: update key value in sqlite3
+   - delete: delete key in sqlite3
 
-3. ClientSetUp.py
+[3. ClientSetUp.py
    - fetch local ip address and store it in `client_add`, which is imported later by client.py
    - build connection to server 
    - connect to local db `ex` and receive the cursor
 
 4. DbSetUp.sh
-   - create log and info table if not exist
+   - create log and info table if not exist ] 
+ 
+Above two files are removed because there are no need to setup log table anymore.
 
 5. fabfile.py
-   - configure server/client address and appoint roles
+   - configure coordinator/replica address and appoint roles
    - identify login key and ssh_configure file
-   - setup: distribute file mention above to separate client machines
-   - getKey: run get function of client.py
-   - putKey: run put function of client.py
+   - setup: distribute file mention above to separate replica machines
+   - getKey: run get function of replica.py
+   - putKey: run put function of replica.py
    
 ## Error Handling
    - Log Table:
