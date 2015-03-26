@@ -76,20 +76,5 @@ Above two files are removed because there are no need to setup log table anymore
 5. fabfile.py
    - configure coordinator/replica address and appoint roles
    - identify login key and ssh_configure file
-   - setup: distribute file mention above to separate replica machines
-   - getKey: run get function of replica.py
-   - putKey: run put function of replica.py
-   
-## Error Handling
-   - Log Table:
-     There are four states: 1 for getkey request received; 2 for getkey request completed; 3 for put/del request received; 4         for put/del requeset completed. Every successful operation should have two records in log table: either a pair of (1, 2) or      (3, 4). For instance, if a [put] request is sent, server is designed to check log table in order to detect any uncompleted      processes. A missing record of state 4 indicates unsuccessful/uncompleted communication, consequently puts the system           on hold.
-
-   - check data validation before inserting/deleting. Keep in mind return value could be None.
-   - Make the best use of try-catch block. Wrap the code that fires up remote procedure call around try-catch blocks. This is useful to traceroute issues.
-
-
-## License
-
-Produced by Yongjun
-
+   - putFile: Put replica.py to a set of machines
 
