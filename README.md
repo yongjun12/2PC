@@ -63,17 +63,7 @@ In this project, fabfile will be run on server machine for simplicity.
    - put: update key value in sqlite3
    - delete: delete key in sqlite3
 
-[3. ClientSetUp.py
-   - fetch local ip address and store it in `client_add`, which is imported later by client.py
-   - build connection to server 
-   - connect to local db `ex` and receive the cursor
-
-4. DbSetUp.sh
-   - create log and info table if not exist ] 
- 
-Above two files are removed because there are no need to setup log table anymore.
-
-5. fabfile.py
+3. fabfile.py
    - configure coordinator/replica address and appoint roles
    - identify login key and ssh_configure file
    - putFile: Put replica.py to a set of machines
