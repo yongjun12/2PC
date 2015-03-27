@@ -26,23 +26,24 @@ In this project, fabfile will be run on server machine for simplicity.
     ```
       replica_add = <ip of ther replica process>
     ```
-2. Run coodinator.py in current work directory
-  ```
-    python coordinator.py
-  ```
-3. vim fabfile.py, set env.host to server ip and all replica ip
+2. vim fabfile.py, set env.host to server ip and all replica ip
     ```
       env.hosts = [<server_ip>, <replica1_ip>, ..., <replicaN_ip>] 
     ```
-4. vim fabfile.py, define server/replica roles
+3. vim fabfile.py, define server/replica roles
    ```
        env.roledefs.update({
        'server': [<server_ip>],
        'replica': [<replica1_ip>, ..., <replicaN_ip>]
        }) 
     ```
-5. Run command `fab setup` to put the python files to replicas and create logs.
-6. Now everything is up and running! Start your exploration!
+4. Use fabric `fab putFile` to put file onto virtual machine.
+5. Run replica.py on a set of replica machines.
+6. Run coodinator.py in current work directory
+  ```
+    python coordinator.py
+  ```
+7. Now everything is up and running! Start your exploration!
 
 ## Code Structure
 
